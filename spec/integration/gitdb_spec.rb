@@ -16,13 +16,14 @@ describe 'DataMapper::GitDb' do
     end
 
     MyModel.auto_migrate!(:master1)
-
-    MyModel.create(:name => "master1 #1")
-    MyModel.create(:name => "master1 #2")
+    repository(:master1) do 
+      MyModel.create(:name => "master1 #1")
+      MyModel.create(:name => "master1 #2")
+    end
     DataMapper::GitDb.build
 
     repository(:master1) do 
-      MyModel.first(:name => "master1 #1").destroy!
+      MyModel.first(:name => "master1 #1").destroy
       MyModel.first(:name => "master1 #2").update_attributes(:name => "master1 #2 edited")
       MyModel.create(:name => "master1 #3")
     end

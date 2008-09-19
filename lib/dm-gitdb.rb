@@ -7,6 +7,7 @@ require 'dm-serializer'
 require 'git'
 
 dir = Pathname(__FILE__).dirname.expand_path / 'dm-gitdb'
-require dir / 'adapters' / 'abstract_adapter'
+require dir / 'adapters' / 'data_objects_adapter'
+require dir / 'gitdb'
 
 
