@@ -3,9 +3,11 @@ require Pathname(__FILE__).dirname.expand_path.parent + 'spec_helper'
 
 describe 'DataMapper::GitDb' do
   before :all do
-    DataMapper.setup(:master1, "mysql://localhost/gitdb_master1").git(:repo => "/git_repo1")  # make sure the first db with data, others db are empty.
-    DataMapper.setup(:master2, "mysql://localhost/gitdb_master2").git(:repo => "/git_repo2")
-    DataMapper.setup(:master3, "mysql://localhost/gitdb_master3").git(:repo => "/git_repo3")
+    DataMapper.setup(:master1, "mysql://localhost/gitdb_master1").config_git(:repo => "/git_repo1", :origin => true )  # make sure the first db with data, others db are empty.
+    DataMapper.setup(:master2, "mysql://localhost/gitdb_master2").config_git(:repo => "/git_repo2")
+    DataMapper.setup(:master3, "mysql://localhost/gitdb_master3").config_git(:repo => "/git_repo3")
+
+    #DataMapper.set_default_repository(:master1)
 
     class MyModel
       include DataMapper::Resource
@@ -15,7 +17,9 @@ describe 'DataMapper::GitDb' do
       property :name, String
     end
 
-    MyModel.auto_migrate!(:master1)
+    repository(:master1).auto_migrate!
+    
+    
     repository(:master1) do 
       MyModel.create(:name => "master1 #1")
       MyModel.create(:name => "master1 #2")

@@ -1,7 +1,8 @@
 require 'rubygems'
 
-gem 'dm-core', '>=0.9.6'
-gem 'dm-serializer', '>=0.9.6'
+gem 'dm-core', '>=0.9.5'
+gem 'dm-serializer', '>=0.9.5'
+gem 'git', '>=1.0.5'
 require 'dm-core'
 require 'dm-serializer'
 require 'git'
