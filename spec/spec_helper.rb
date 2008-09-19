@@ -1,0 +1,5 @@
+require 'rubygems'
+require 'spec'
+# require 'merb-core'
+require 'dm-core'
+require File.dirname(__FILE__) + '/../lib/dm-gitdb'
