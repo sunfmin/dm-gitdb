@@ -58,37 +58,60 @@ describe 'DataMapper::GitDb' do
     end
     repository(:master3).commit("edited in master3")
 
-    repository(:master2) do 
-      MyModel.first(:name => "master1 #2").update_attributes(:name => "master1 #2 edited in master2")
-    end
-    repository(:master2).commit("edited in master2")
-
   end
 
 
-  it "should be able to pull" do
+  it "should be able to pull from each other" do
     repository(:master1).pull(:master3)
 
     repository(:master1) do 
       MyModel.first(:name => "master3 #1").should_not be_nil
     end
-  end
 
-
-  it "should be able to push" do
-    repository(:master1).push
-
+    repository(:master3).pull(:master1)
     repository(:master3) do 
-      MyModel.first(:name => "master1 #2 edited").should_not be_nil
+      MyModel.first(:name => "master1 #1").should be_nil
     end
+
   end
 
-  it "should overwrite target if conflict" do
-    repository(:master2).pull(:master1)
 
-    repository(:master2) do
-      MyModel.first(:name => "master1 #2").should_not be_nil
+  it "should be able to pull with lots of record" do
+    repository(:master2) do 
+      100.times do |i|
+        MyModel.create(:name => "master2 #{i}/100")
+      end
     end
+    repository(:master2).commit("added 100 record in master2")
+
+    repository(:master3).pull(:master2)
+    repository(:master1).pull(:master2)
+
+    repository(:master3) { MyModel.all.size.should > 100 }
+    repository(:master1) { MyModel.all.size.should > 100 }
   end
+
+  # 
+  # it "should be able to push" do
+  #   repository(:master1).push
+  # 
+  #   repository(:master3) do 
+  #     MyModel.first(:name => "master1 #2 edited").should_not be_nil
+  #   end
+  # end
+  # 
+  # it "should overwrite target if conflict" do
+
+  # repository(:master2) do 
+  #   MyModel.first(:name => "master1 #2").update_attributes(:name => "master1 #2 edited in master2")
+  # end
+  # repository(:master2).commit("edited in master2")
+
+  #   repository(:master2).pull(:master1)
+  # 
+  #   repository(:master2) do
+  #     MyModel.first(:name => "master1 #2").should_not be_nil
+  #   end
+  # end
 
 end

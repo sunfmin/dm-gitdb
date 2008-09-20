@@ -88,8 +88,7 @@ module DataMapper
       end
 
       def set_increment_offset
-        self.repository.adapter.execute("SET @@auto_increment_offset=#{self.repository.adapter.git_config[:increment_offset]}")
-        self.repository.adapter.execute("SET @@auto_increment_increment=#{DataMapper.auto_increment}")
+        self.repository.adapter.execute("SET @@auto_increment_offset=#{self.repository.adapter.git_config[:increment_offset]}, @@auto_increment_increment=#{DataMapper.auto_increment}")
       end
     end
 
