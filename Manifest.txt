@@ -1,0 +1,15 @@
+History.txt
+LICENSE
+Manifest.txt
+README.txt
+Rakefile
+TODO
+lib/dm-gitdb.rb
+lib/dm-gitdb/adapters/data_objects_adapter.rb
+lib/dm-gitdb/gitdb.rb
+lib/dm-gitdb/gitversion.rb
+lib/dm-gitdb/version.rb
+spec/integration/gitdb_spec.rb
+spec/spec.opts
+spec/spec_helper.rb
+tasks/hoe.rb
