@@ -1,9 +1,13 @@
 module DataMapper
   def self.set_default_repository(name)
-    raise ArgumentError, "You can not set default repository inside repository block" unless Repository.context.empty?
-    Repository.context << repository(name)
+    Repository.class_eval <<-EOS, __FILE__, __LINE__
+      def self.default_name
+        :#{name}
+      end
+    EOS
+
   end
-  
+
   def self.set_auto_increment(auto_increment)
     return if auto_increment.to_i < @auto_increment.to_i
     @auto_increment = auto_increment.to_i
@@ -22,13 +26,13 @@ module DataMapper
       sources = other_remote_names if sources.empty?
       sources.each do |remote|
         adapter.git_pull(remote, "#{remote}/master")
-        ver = repository(self.name) {Gitversion.version}
+        ver = repository(self.name) {version}
         if ver.blank?
           adapter.full_db_update
         else
           adapter.diff_db_update(ver, 'HEAD')
         end
-        adapter.update_version
+        update_version
       end
     end
 
@@ -36,19 +40,32 @@ module DataMapper
       self.auto_upgrade!
       adapter.git_clone(repository(source).adapter)
       adapter.full_db_update
-      adapter.update_version
+      update_version
     end
 
     def commit(message)
       adapter.git_commit(message)
-      adapter.update_version
+      update_version
     end
 
     private
     def other_remote_names
       Repository.adapters.collect{|ad| ad[0].to_s}.reject{|n| n == self.name}
     end
+
+    def update_version
+      repository(self.name) {Gitversion.update_version(adapter.git.gcommit('HEAD').sha)}
+    end
     
+    def version
+      Gitversion.version
+    end
+    
+    def self.require_gitversion
+      unless const_defined?('Gitversion')
+        require Pathname(__FILE__).dirname.expand_path / 'gitversion'
+      end
+    end
   end
 
   module GitDb
@@ -99,6 +116,8 @@ module DataMapper
       mod.after(:create) { update_git_file! }
       mod.after(:update) { update_git_file!}
       mod.before(:destroy) { git_rm! }
+      ::DataMapper::Repository.require_gitversion
+
     end
 
   end

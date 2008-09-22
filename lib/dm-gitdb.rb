@@ -12,5 +12,4 @@ end
 
 dir = Pathname(__FILE__).dirname.expand_path / 'dm-gitdb'
 require dir / 'adapters' / 'data_objects_adapter'
-require dir / 'gitversion'
 require dir / 'gitdb'

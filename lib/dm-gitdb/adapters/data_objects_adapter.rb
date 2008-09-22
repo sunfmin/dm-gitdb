@@ -3,8 +3,14 @@ module DataMapper
   module Adapters
     module GitDbAdapter
       include FileUtils
+
+      attr_writer :git
+      def git
+        return @git if @git
+        git_initialize
+        @git
+      end
       
-      attr_accessor :git
       def config_git(git_config)
         @git_config = git_config
         ::DataMapper.set_auto_increment(git_config[:increment_offset])
@@ -38,7 +44,7 @@ module DataMapper
         DataMapper.logger.debug("GitDb: in #{self.name}, git add => #{m}")
         
       end
-      
+
       def git_remove(record)
         return if record.new_record? || git.nil?
         begin
@@ -59,10 +65,12 @@ module DataMapper
           DataMapper.logger.debug("GitDb: in #{self.name}, git commit => #{m}")
           
         rescue Git::GitExecuteError => e
-          raise e unless e.message.include?("nothing to commit")
+          return if e.message.include?("nothing to commit")
+          return if e.message.include?("did not match any files")
+          raise e
         end
       end
-      
+
       def git_pull(remote = 'origin', branch = 'master', message = 'origin pull')
         m = self.git.pull(remote, branch, message)
         DataMapper.logger.debug("GitDb: in #{self.name}, git pull #{remote} #{branch} => #{m}")
@@ -85,9 +93,6 @@ module DataMapper
         end
       end
 
-      def update_version
-        repository(self.name) {Gitversion.update_version(self.git.gcommit('HEAD').sha)}
-      end
 
       def full_db_update
         changeset = {}
