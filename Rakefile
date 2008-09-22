@@ -10,7 +10,7 @@ AUTHOR = "Felix Sun"
 EMAIL  = "sunfmin@gmail.com"
 GEM_NAME = "dm-gitdb"
 GEM_VERSION = DataMapper::GitDb::VERSION
-GEM_DEPENDENCIES = [["dm-core", GEM_VERSION]]
+GEM_DEPENDENCIES = [["dm-core", ">=0.9.5"]]
 GEM_CLEAN = ["log", "pkg", "coverage"]
 GEM_EXTRAS = { :has_rdoc => true, :extra_rdoc_files => %w[ README.txt LICENSE TODO ] }
 
