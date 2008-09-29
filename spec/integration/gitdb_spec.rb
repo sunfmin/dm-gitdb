@@ -8,22 +8,38 @@ describe 'DataMapper::GitDb' do
     FileUtils.rm_rf('/git_repo1')
     FileUtils.rm_rf('/git_repo2')
     FileUtils.rm_rf('/git_repo3')
-    DataMapper.setup(:master1, "mysql://localhost/gitdb_master1").config_git(
-      :local => "/git_repo1", 
-      :as_url => "ssh://sunfmin@localhost/git_repo1", 
-      :increment_offset => 1, 
-      :origin => true 
-    )  # make sure origin db with data, others db are empty.
-    DataMapper.setup(:master2, "mysql://localhost/gitdb_master2").config_git(
-      :local => "/git_repo2", 
-      :increment_offset => 2, 
-      :as_url => "ssh://sunfmin@localhost/git_repo2"
-    )
-    DataMapper.setup(:master3, "mysql://localhost/gitdb_master3").config_git(
-      :local => "/git_repo3", 
-      :increment_offset => 3, 
-      :as_url => "ssh://sunfmin@localhost/git_repo3"
-    )
+
+    DataMapper::GitDbConfig.setup(:name => :master1, :default_when => lambda{ true }) do |db, git|
+      db[:adapter] = "mysql"
+      db[:database] = "gitdb_master1"
+      db[:username] = "root"
+      db[:host] = "localhost"
+
+      git[:local] = "/git_repo1"
+      git[:as_url] = "ssh://sunfmin@localhost/git_repo1"
+      git[:increment_offset] = 1
+    end
+    DataMapper::GitDbConfig.setup(:name => :master2, :default_when => lambda{ false }) do |db, git|
+      db[:adapter] = "mysql"
+      db[:database] = "gitdb_master2"
+      db[:username] = "root"
+      db[:host] = "localhost"
+
+      git[:local] = "/git_repo2"
+      git[:as_url] = "ssh://sunfmin@localhost/git_repo2"
+      git[:increment_offset] = 2
+    end
+    DataMapper::GitDbConfig.setup(:name => :master3, :default_when => lambda{ false }) do |db, git|
+      db[:adapter] = "mysql"
+      db[:database] = "gitdb_master3"
+      db[:username] = "root"
+      db[:host] = "localhost"
+
+      git[:local] = "/git_repo3"
+      git[:as_url] = "ssh://sunfmin@localhost/git_repo3"
+      git[:increment_offset] = 3
+    end
+
 
     #DataMapper.set_default_repository(:master1)
 
@@ -39,12 +55,11 @@ describe 'DataMapper::GitDb' do
     repository(:master2).auto_migrate!
     repository(:master3).auto_migrate!
 
-
     repository(:master1) do 
       MyModel.create(:name => "master1 #1")
       MyModel.create(:name => "master1 #2")
     end
-    DataMapper::GitDb.build
+    DataMapper::GitDb.build(:master1)
 
     repository(:master1) do 
       MyModel.first(:name => "master1 #1").destroy
